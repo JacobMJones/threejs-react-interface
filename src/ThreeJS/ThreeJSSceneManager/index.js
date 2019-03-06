@@ -52,7 +52,7 @@ export default (canvas, canvasOptions, sceneOptions, subjects, cb) => {
   }
 
   function createSceneSubjects(scene) {
-    const sceneSubjects = subjects.map(sub => sub(scene));
+    const sceneSubjects = subjects.map(sub => sub(scene, camera));
     return sceneSubjects;
   }
 

@@ -1,70 +1,199 @@
 import * as THREE from "three";
 import alphaTexture from "./blue-stars.jpg";
 
-export default scene => {
+export default (scene, camera) => {
   var raycaster = new THREE.Raycaster();
   var lastMouse = { x: null, y: null }
   var clicked;
+  var shrinking = false;
   const group = new THREE.Group();
 
-  const subjectGeometry = deformGeometry(new THREE.IcosahedronGeometry(4, 5));
+  // const subjectGeometry = deformGeometry(new THREE.IcosahedronGeometry(4, 5));
 
-  const subjectMaterial = new THREE.MeshStandardMaterial({
+  const subjectMaterial = new THREE.MeshPhongMaterial({
     color: 0x093145,
-    transparent: false,
-    side: THREE.DoubleSide,
-    alphaTest: 0.1
+    transparent: true,
+    emissive: 0xffff00,
+    emissiveIntensity: .1
+    // side: THREE.DoubleSide,
+    // alphaTest: 0.1
   });
-  subjectMaterial.alphaMap = new THREE.TextureLoader().load(alphaTexture);
-  subjectMaterial.alphaMap.magFilter = THREE.NearestFilter;
-  subjectMaterial.alphaMap.wrapT = THREE.RepeatWrapping;
-  subjectMaterial.alphaMap.repeat.y = 12;
+  // subjectMaterial.alphaMap = new THREE.TextureLoader().load(alphaTexture);
+  // subjectMaterial.alphaMap.magFilter = THREE.NearestFilter;
+  // subjectMaterial.alphaMap.wrapT = THREE.RepeatWrapping;
+  // subjectMaterial.alphaMap.repeat.y = 1;
+
+
+
+
+  //   var geometry = new THREE.RingGeometry( 1, 5, 32 );
+  // var material = new THREE.MeshBasicMaterial( { color: 0xffff00, side: THREE.DoubleSide } );
+  // var mesh = new THREE.Mesh( geometry, material );
+
+  var subjectGeometry = new THREE.BoxGeometry(3, 3, 3);
+  // var subjectMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 
   const subjectMesh = new THREE.Mesh(subjectGeometry, subjectMaterial);
+  subjectMesh.scale.set(2, 2, 2)
   //subjectMesh.position.set(0, 0, 0);
   group.add(subjectMesh);
 
   scene.add(group);
 
-  group.rotation.z = Math.PI / 6;
+  group.rotation.x = -.4
+
+  // group.rotation.z = Math.PI / 6;
 
   let speed = 0.2;
   const textureOffsetSpeed = .15;
+  var twistCounter = 0;
+  var twistMax = 6;
+  var upVec;
+  var horVec;
+  function deformGeometry(geometry, timer, twist) {
+    const quaternion = new THREE.Quaternion();
+    if (twistCounter < twistMax) {
+      if (twist) {
 
-  function deformGeometry(geometry) {
-    // for (let i = 0; i < geometry.vertices.length; i += 8) {
-    //   const scalar = 1 + Math.random() * .2;
-    //   geometry.vertices[i].multiplyScalar(scalar)
+        for (let i = 0; i < geometry.vertices.length; i++) {
+          // a single vertex Y position
+          const yPos = geometry.vertices[i].y;
+          const xPos = geometry.vertices[i].x;
+          const twistAmount = 100;
+          upVec = new THREE.Vector3(0, 3, 0)
+
+          var n = (Math.PI / 180) / (yPos)
+          quaternion.setFromAxisAngle(
+            upVec,
+            n
+          );
+
+          geometry.vertices[i].applyQuaternion(quaternion);
+        }
+
+      }
+      else if (!twist && twistCounter < twistMax) {
+        twistCounter++;
+
+        for (let i = 0; i < geometry.vertices.length; i++) {
+          // a single vertex Y position
+          const yPos = geometry.vertices[i].y;
+          const xPos = geometry.vertices[i].x;
+          const twistAmount = 100;
+          upVec = new THREE.Vector3(0, -3, 0)
+
+          var n = (Math.PI / 180) / (yPos)
+          quaternion.setFromAxisAngle(
+            upVec,
+            n
+          );
+
+          geometry.vertices[i].applyQuaternion(quaternion);
+        }
+      }
+      console.log(twist, twistCounter)
+    }
+    else {
+      // twistCounter = 1;
+    }
+
+    //     const quaternion = new THREE.Quaternion();
+    // var upVec;
+    //     for (let i = 0; i < geometry.vertices.length; i++) {
+    //       // a single vertex Y position
+    //       const yPos = geometry.vertices[i].y;
+    //       const twistAmount = 10;
+    //       upVec = new THREE.Vector3(0, 1, 0) 
+
+    //       var n = (Math.PI / 180) / (yPos ) 
+    //       quaternion.setFromAxisAngle(
+    //         upVec, 
+    //         n
+    //       );
+
+    //       geometry.vertices[i].applyQuaternion(quaternion);
     // }
 
+    // tells Three.js to re-render this mesh
+    console.log(timer)
+    if (timer === 0) {
+      twistCounter = 0
+    }
+    geometry.verticesNeedUpdate = true;
     return geometry;
   }
 
-  function click(mouse, camera){
-    
+  var timer = 1
+  var animating = 0
+  var timerLimit = 1000;
+  function click(mouse, camera) {
 
-      raycaster.setFromCamera(mouse, camera);
-      var intersects = raycaster.intersectObjects([subjectMesh]);
-      if (intersects.length > 0) {
-        if (clicked) {
-          subjectMaterial.alphaMap.repeat.y = 12;
-        } else {
-          subjectMaterial.alphaMap.repeat.y = 2;
-        }
-      }
-      clicked = !clicked;
-    
+
+    raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObjects([subjectMesh]);
+    if (intersects.length > 0) {
+      console.log('threejs button clicked')
+      shrinking = true;
+      animating = !animating
+      //subjectMaterial.alphaMap.repeat.y = 12;
+      subjectMesh.scale.set(2, 2, 2)
+
+    }
+    // clicked = !clicked;
+
   }
+  var size;
+  var scale
+  var sizeLimit = 1.5;
+  var startSize = 2
   function update(time) {
+    if (animating) {
+
+    }
+
+    size = subjectMesh.scale.x
+    if (animating && size >= sizeLimit && shrinking) {
+      const angle = time * speed;
+
+      scale = timer / 10;
+      deformGeometry(subjectGeometry, timer, true)
+      subjectMesh.scale.set(2 - scale, 2 - scale, 2 - scale)
+      timer++;
+
+    }
+    else if (animating && size <= sizeLimit && shrinking) {
+
+
+      shrinking = false;
+
+    }
+    else if (animating && !shrinking && size <= startSize) {
+      deformGeometry(subjectGeometry, timer, false)
+
+      timer--;
+      scale = timer / 10;
+      subjectMesh.scale.set(2 - scale, 2 - scale, 2 - scale)
+    }
+    else {
+      animating = false;
+      subjectMesh.scale.set(startSize, startSize, startSize)
+      timer = 1
+    }
 
 
 
-    const angle = time * speed;
 
-    subjectMesh.rotation.y = angle;
-    subjectMesh.rotation.x = angle;
-    subjectMaterial.alphaMap.offset.y = 0.55 + time * textureOffsetSpeed;
-    subjectMaterial.alphaMap.offset.x = 0.55 + time * textureOffsetSpeed;
+
+
+    // const angle = time * speed;
+    //const scale = (Math.sin(timer/5));
+
+    //    const scale = (Math.sin(angle * 6) + 8) / 5;
+    // subjectMesh.scale.set(scale, scale, scale)
+    // subjectMesh.rotation.y = angle;
+    // subjectMesh.rotation.x = angle;
+    // subjectMaterial.alphaMap.offset.y = 0.55 + time * textureOffsetSpeed;
+    // subjectMaterial.alphaMap.offset.x = 0.55 + time * textureOffsetSpeed;
     // subjectWireframe.material.color.setHSL( Math.sin(angle*2), 0.5, 0.5 );
 
     // const scale = (Math.sin(angle * 6) + 8) / 5;

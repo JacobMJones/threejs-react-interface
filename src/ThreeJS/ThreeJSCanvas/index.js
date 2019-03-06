@@ -9,24 +9,21 @@ class ThreeJSCanvas extends Component {
 
 
   componentDidMount() {
-console.log('canvas mount')
-  const {SceneManager, canvasOptions, sceneOptions, subjects, cb} = this.props
+    console.log('canvas mount')
+    const { SceneManager, canvasOptions, sceneOptions, subjects, cb } = this.props
     threeJSCanvas(
       this.threeRootElement,
       SceneManager,
       canvasOptions,
-      sceneOptions, 
+      sceneOptions,
       subjects,
       cb
     );
   }
-  componentDidUpdate() {
-    console.log('canvas update')
 
-  }
   render() {
     return (
-        <div ref={element => (this.threeRootElement = element)} />  
+      <div ref={element => (this.threeRootElement = element)} />
     );
   }
 }
