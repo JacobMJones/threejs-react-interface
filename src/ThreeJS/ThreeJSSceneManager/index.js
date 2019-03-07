@@ -57,9 +57,10 @@ export default (canvas, canvasOptions, sceneOptions, subjects, cb) => {
   }
 
   function onWindowResize() {
+    console.log('window resized')
     const { width, height } = canvasDimensions;
-    canvasDimensions.width = width;
-    canvasDimensions.height = height;
+    canvasDimensions.width = window.innerWidth;
+    canvasDimensions.height = window.innerHeight;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
@@ -86,7 +87,8 @@ cb();
     const elapsedTime = clock.getElapsedTime();
     if (mouseClicked) {
       for (let i = 0; i < sceneSubjects.length; i++) {
-        sceneSubjects[i].click(mouse, camera);
+       
+        sceneSubjects[i].click && sceneSubjects[i].click(mouse, camera);
       }
     }
 

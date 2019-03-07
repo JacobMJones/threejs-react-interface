@@ -17,13 +17,15 @@ export default (container, SceneManager, canvasOptions, sceneOptions, subjects, 
   }
 
   function bindEventListeners(canvas) {
-    canvas.onresize = resizeCanvas;
+    window.onresize = resizeCanvas;
     canvas.onmousemove = mouseMove;
     canvas.onclick = onClick;
     resizeCanvas();
+  
   }
 
   function resizeCanvas() {
+ 
     canvas.style.width = canvasOptions.width;
     canvas.style.height = canvasOptions.height;
     canvas.width = canvas.offsetWidth;
@@ -33,6 +35,7 @@ export default (container, SceneManager, canvasOptions, sceneOptions, subjects, 
     sceneManager.onWindowResize();
   }
 
+  
   //   CANVAS API
   function mouseMove(event) {
     sceneManager.onMouseMove(event);
