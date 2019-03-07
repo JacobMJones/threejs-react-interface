@@ -5,3 +5,4 @@ Once the kinks are worked out this will be a boilerplate for getting started wit
 
 inspired by https://itnext.io/how-to-use-plain-three-js-in-your-react-apps-417a79d926e0
 
+https://giphy.com/gifs/YjRp82im5nvMVvHwrx/media
