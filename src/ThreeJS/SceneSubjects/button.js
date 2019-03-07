@@ -47,6 +47,22 @@ export default (scene, buttonOptions) => {
   scene.add(group);
   group.rotation.x = -1.1;
 
+  var originalVertices = []
+  function setOriginalYVertices() {
+    const quaternion = new THREE.Quaternion();
+    let geometry = subjectGeometry;
+    for (const v in geometry.vertices) {
+
+     
+const vertices = {x: geometry.vertices[v].x, y: geometry.vertices[v].y, z: geometry.vertices[v].z}
+        
+       // const yPos = geometry.vertices[v].y;
+
+     originalVertices.push(vertices)
+      }
+    console.log(originalVertices)
+  }
+  setOriginalYVertices();
   function changePosition(x, y, z) {
     subjectMesh.position.set(
       subjectMesh.position.x + x,
@@ -68,39 +84,55 @@ export default (scene, buttonOptions) => {
       subjectMesh.rotation.z + z
     );
   }
-  function deformGeometry(firstPartOfAnimation) {
+  let firstCounter = 0;
+  let secondCounter = 0;
+
+
+  function deformGeometry(firstPartOfAnimation, timer) {
+
     const quaternion = new THREE.Quaternion();
     let geometry = subjectGeometry;
+    const n = Math.PI / 180;
+    const deformAmount = 7.9;
 
     if (firstPartOfAnimation) {
-      for (let i = 0; i < geometry.vertices.length; i++) {
-        console.log("in loop");
-        const yPos = geometry.vertices[i].y;
-        const xPos = geometry.vertices[i].x;
-        const upVec = new THREE.Vector3(-0.5, 0, 0);
-        const n = Math.PI / 180;
-        quaternion.setFromAxisAngle(upVec, n);
-        geometry.vertices[i].applyQuaternion(quaternion);
-      }
-      geometry.verticesNeedUpdate = true;
-    } else {
-      for (let i = 0; i < geometry.vertices.length; i++) {
-        console.log("in loop2");
-        const yPos = geometry.vertices[i].y;
-        const xPos = geometry.vertices[i].x;
-        const upVec = new THREE.Vector3(0.5, 0, 0);
-        const n = Math.PI / 180;
-        quaternion.setFromAxisAngle(upVec, n);
-        geometry.vertices[i].applyQuaternion(quaternion);
-      }
-      geometry.verticesNeedUpdate = true;
-    }
-  }
+      for (const v in originalVertices) {
 
-  function e(){
-    console.log(typeof up)
-  //  up('showBall', true)
+        if (timer === 1) {
+
+          const upVec = new THREE.Vector3(0, 15, 0);
+          //const yPos = geometry.vertices[v].y;
+          const yPos = originalVertices[v].y
+          quaternion.setFromAxisAngle(
+            upVec,
+            yPos / 180
+          );
+          geometry.vertices[v].applyQuaternion(quaternion);
+          geometry.verticesNeedUpdate = true;
+        }
+      }
+    } else {
+      for (const v in originalVertices) {
+
+        if (timer === 1) {
+
+          const d = new THREE.Vector3(0, -15, 0);
+          const yPos = originalVertices[v].y
+          quaternion.setFromAxisAngle(
+            d,
+            (yPos / 180)
+          );
+          geometry.vertices[v].applyQuaternion(quaternion);
+          geometry.verticesNeedUpdate = true;
+        }
+      }
+    }
+    console.log('counters', firstCounter, secondCounter)
+
   }
+  // const yPos = geometry.vertices[i].y;
+  // const xPos = geometry.vertices[i].x;
+
   function click(mouse, camera) {
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects([subjectMesh]);
@@ -110,40 +142,48 @@ export default (scene, buttonOptions) => {
     }
   }
 
-  function update(time, mouse, camera,state, updateState) {
+  const max = 32;
+  function update(time, mouse, camera, state, updateState) {
 
     if (animating) {
-      console.log(state)
-   
       if (
-        subjectMesh.scale.z > buttonOptions.scale.z / 2 &&
+        timer < 5 &&
         firstPartOfAnimation
       ) {
-        changeScale(0, 0, -timer / 12);
-        changePosition(0, 0, -timer / 24);
-        // deformGeometry(firstPartOfAnimation, timer);
-      } else if (subjectMesh.scale.z <= sizeLimit && firstPartOfAnimation) {
+        //  changeScale(0, 0, -timer / 12);
+        // changePosition(0, 0, -timer / 24);
+        timer++
+        deformGeometry(firstPartOfAnimation, timer);
+      } else if (timer >= 5 && firstPartOfAnimation) {
         firstPartOfAnimation = false;
+        // deformGeometry(firstPartOfAnimation, timer);
         timer = 0;
       } else if (
-        subjectMesh.scale.z < buttonOptions.scale.z &&
-        !firstPartOfAnimation
-      ) {
-        changeScale(0, 0, timer / 12);
-        changePosition(0, 0, timer / 24);
-        //   deformGeometry(firstPartOfAnimation, timer);
+        timer < 5 &&
+        !firstPartOfAnimation) {
+        //changeScale(0, 0, timer / 12);
+        // changePosition(0, 0, timer / 24);
+
+        timer++
+        deformGeometry(firstPartOfAnimation, timer);
       } else if (
-        subjectMesh.scale.z > buttonOptions.scale.z &&
+        timer >= 5 &&
         !firstPartOfAnimation
       ) {
         animating = false;
-        timer = -1;
+
         updateState('showButton', !state.showBall)
-        
+        console.log('timer', timer);
       }
-      timer++;
+
+
     }
 
+    else {
+      firstCounter = 0;
+      secondCounter = 0;
+      timer = 0;
+    }
     // size = subjectMesh.scale.z;
     // if (animating && size >= sizeLimit && shrinking) {
     //   const angle = time * speed;
