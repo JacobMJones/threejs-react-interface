@@ -44,20 +44,20 @@ export default (canvas, canvasOptions, sceneOptions, subjects, cb) => {
     const fieldOfView = 70;
     const aspect = width / height;
     const farPlane = 100;
- const camera = new THREE.PerspectiveCamera( 70, width / height, 1, 10000 );
+    const camera = new THREE.PerspectiveCamera(70, width / height, 1, 10000);
 
     camera.position.z = 15;
-    camera.position.y = 0
+    camera.position.y = 0;
     return camera;
   }
 
-  function createSceneSubjects(scene) {
-    const sceneSubjects = subjects.map(sub => sub(scene, camera));
+  function createSceneSubjects(scene, updateState) {
+    const sceneSubjects = subjects.map(sub => sub(scene));
     return sceneSubjects;
   }
 
   function onWindowResize() {
-    console.log('window resized')
+    console.log("window resized");
     const { width, height } = canvasDimensions;
     canvasDimensions.width = window.innerWidth;
     canvasDimensions.height = window.innerHeight;
@@ -78,22 +78,32 @@ export default (canvas, canvasOptions, sceneOptions, subjects, cb) => {
     // mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
     // mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
     mouseClicked = true;
-cb();
+    cb();
     mouseClicks.push({ x: mouse.x, y: mouse.y });
     console.log(mouseClicked);
   }
+  var state = { test: "test" };
 
+function updateState (key, value){
+    console.log('in update')
+    console.log(state)
+    state.showBall = value;
+  };
   function update() {
     const elapsedTime = clock.getElapsedTime();
     if (mouseClicked) {
       for (let i = 0; i < sceneSubjects.length; i++) {
-       
         sceneSubjects[i].click && sceneSubjects[i].click(mouse, camera);
       }
     }
 
     for (let i = 0; i < sceneSubjects.length; i++) {
-      sceneSubjects[i].update(elapsedTime, mouse, camera);
+  
+      sceneSubjects[i].update(elapsedTime, mouse, camera, state, updateState);
+
+    
+       // sceneSubjects[i].updateState(this.updateState)
+      
     }
 
     mouseClicked = false;
@@ -104,7 +114,8 @@ cb();
     update,
     onWindowResize,
     onMouseMove,
-    onClick
+    onClick,
+    state
   };
 };
 

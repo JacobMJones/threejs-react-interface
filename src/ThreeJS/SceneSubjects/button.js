@@ -1,14 +1,14 @@
 import * as THREE from "three";
 import alphaTexture from "./blue-stars.jpg";
 
-export default (scene, buttonOptions, camera) => {
+export default (scene, buttonOptions) => {
   var raycaster = new THREE.Raycaster();
   var firstPartOfAnimation = false;
 
   var timer = 0;
   var animating;
   var sizeLimit = buttonOptions.scale.z;
-  var startSize = buttonOptions.scale.z ;
+  var startSize = buttonOptions.scale.z;
 
   const group = new THREE.Group();
 
@@ -19,7 +19,11 @@ export default (scene, buttonOptions, camera) => {
     emissiveIntensity: 0.55
   });
 
-  const subjectGeometry = new THREE.BoxGeometry(buttonOptions.scale.x, buttonOptions.scale.y, buttonOptions.scale.z);
+  const subjectGeometry = new THREE.BoxGeometry(
+    buttonOptions.scale.x,
+    buttonOptions.scale.y,
+    buttonOptions.scale.z
+  );
   const subjectMesh = new THREE.Mesh(subjectGeometry, subjectMaterial);
 
   // changeScale(
@@ -27,11 +31,17 @@ export default (scene, buttonOptions, camera) => {
   //   buttonOptions.scale.y,
   //   buttonOptions.scale.z
   // );
+  subjectMesh.rotation.set(buttonOptions.rotation.x, buttonOptions.rotation.y, buttonOptions.rotation.z);
   changePosition(
     buttonOptions.position.x,
     buttonOptions.position.y,
     buttonOptions.position.z
   );
+  // changeRotation(
+  //   buttonOptions.rotation.x,
+  //   buttonOptions.rotation.y,
+  //   buttonOptions.rotation.z
+  // )
 
   group.add(subjectMesh);
   scene.add(group);
@@ -51,7 +61,13 @@ export default (scene, buttonOptions, camera) => {
       subjectMesh.scale.z + z
     );
   }
-
+  function changeRotation(x, y, z) {
+    subjectMesh.scale.set(
+      subjectMesh.rotation.x + x,
+      subjectMesh.rotation.y + y,
+      subjectMesh.rotation.z + z
+    );
+  }
   function deformGeometry(firstPartOfAnimation) {
     const quaternion = new THREE.Quaternion();
     let geometry = subjectGeometry;
@@ -79,10 +95,12 @@ export default (scene, buttonOptions, camera) => {
       }
       geometry.verticesNeedUpdate = true;
     }
-
-  
   }
 
+  function e(){
+    console.log(typeof up)
+  //  up('showBall', true)
+  }
   function click(mouse, camera) {
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects([subjectMesh]);
@@ -92,27 +110,36 @@ export default (scene, buttonOptions, camera) => {
     }
   }
 
-  function update(time) {
+  function update(time, mouse, camera,state, updateState) {
+
     if (animating) {
-      if (subjectMesh.scale.z > buttonOptions.scale.z/2 && firstPartOfAnimation) {
+      console.log(state)
+   
+      if (
+        subjectMesh.scale.z > buttonOptions.scale.z / 2 &&
+        firstPartOfAnimation
+      ) {
         changeScale(0, 0, -timer / 12);
         changePosition(0, 0, -timer / 24);
-        deformGeometry(firstPartOfAnimation, timer);
+        // deformGeometry(firstPartOfAnimation, timer);
       } else if (subjectMesh.scale.z <= sizeLimit && firstPartOfAnimation) {
         firstPartOfAnimation = false;
         timer = 0;
-      }
-
-      else if (subjectMesh.scale.z < buttonOptions.scale.z && !firstPartOfAnimation) {
+      } else if (
+        subjectMesh.scale.z < buttonOptions.scale.z &&
+        !firstPartOfAnimation
+      ) {
         changeScale(0, 0, timer / 12);
         changePosition(0, 0, timer / 24);
-        deformGeometry(firstPartOfAnimation, timer);
+        //   deformGeometry(firstPartOfAnimation, timer);
       } else if (
         subjectMesh.scale.z > buttonOptions.scale.z &&
         !firstPartOfAnimation
       ) {
         animating = false;
         timer = -1;
+        updateState('showButton', !state.showBall)
+        
       }
       timer++;
     }
