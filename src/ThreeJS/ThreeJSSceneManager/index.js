@@ -11,7 +11,6 @@ export default (canvas, canvasOptions, sceneOptions, subjects, cb) => {
   };
 
   const scene = buildScene();
-  // scene.background = new THREE.Color(0xff0000);
   const renderer = buildRender(canvasDimensions);
   const camera = buildCamera(canvasDimensions);
   const sceneSubjects = createSceneSubjects(scene);
@@ -35,7 +34,7 @@ export default (canvas, canvasOptions, sceneOptions, subjects, cb) => {
     renderer.gammaOutput = true;
     renderer.setClearColor(0x000000, 0);
     renderer.domElement.addEventListener("click", () => {
-      console.log("");
+      
     });
     return renderer;
   }
@@ -82,12 +81,12 @@ export default (canvas, canvasOptions, sceneOptions, subjects, cb) => {
     mouseClicks.push({ x: mouse.x, y: mouse.y });
     console.log(mouseClicked);
   }
-  var state = { test: "test" };
+  var state = { rotateBall:true};
 
 function updateState (key, value){
-    console.log('in update')
-    console.log(state)
-    state.showBall = value;
+    console.log('in update', key, value)
+   
+    state[key] = value;
   };
   function update() {
     const elapsedTime = clock.getElapsedTime();
@@ -126,3 +125,136 @@ function updateState (key, value){
 //     camera.position.y += (-(mouse.y * 0.01) - camera.position.y) * 0.01;
 //     camera.lookAt(origin);
 //   }
+
+
+
+
+// var container;
+
+// var camera, scene, renderer, clock;
+// var mesh, mixer;
+// var clip;
+
+// init();
+// animate();
+
+// function init() {
+
+//   setUpCamera();
+//   setUpScene();
+//   setUpLights();
+
+//   clock = new THREE.Clock();
+
+  
+
+//   var geometry = new THREE.BoxGeometry(100, 100, 100);
+//   var material = new THREE.MeshLambertMaterial({
+//     color: 0xffffff,
+//     morphTargets: true
+//   });
+
+//   // generate morph target data
+
+//   var vertices = [];
+
+//   for (var v = 0; v < geometry.vertices.length; v++) {
+//     vertices.push(geometry.vertices[v].clone());
+
+//     vertices[vertices.length - 1].x *= 1.2;
+//     vertices[vertices.length - 1].y *= 1.2;
+//     vertices[vertices.length - 1].z *= 1.2;
+//   }
+
+//   geometry.morphTargets.push({ name: "target_1", vertices: vertices });
+
+//   //
+
+//   geometry = new THREE.BufferGeometry().fromGeometry(geometry);
+
+//   mesh = new THREE.Mesh(geometry, material);
+
+//   scene.add(mesh);
+
+//   // construct clip
+
+//   var times = [0, 0.1, 0.2];
+//   var values = [0, 1, 0];
+
+//   var track = new THREE.VectorKeyframeTrack(
+//     ".morphTargetInfluences[0]",
+//     times,
+//     values,
+//     THREE.InterpolateLinear
+//   );
+//   var clip = new THREE.AnimationClip("clip", undefined, [track]);
+
+//   mixer = new THREE.AnimationMixer(mesh);
+
+//   var action = mixer.clipAction(clip);
+//   action.loop = THREE.LoopOnce;
+
+//   //
+
+//   renderer = new THREE.WebGLRenderer();
+//   renderer.setPixelRatio(window.devicePixelRatio);
+//   renderer.setSize(window.innerWidth, window.innerHeight);
+//   document.body.appendChild(renderer.domElement);
+
+//   //
+
+//   //
+
+//   window.addEventListener("resize", onWindowResize, false);
+
+//   renderer.domElement.addEventListener(
+//     "click",
+//     () => {
+//       action.stop();
+//       action.play();
+
+//       mesh.morphTargetInfluences[0] = 1 - mesh.morphTargetInfluences[0];
+//     },
+//     false
+//   );
+// }
+
+// function setUpCamera() {
+//   camera = new THREE.PerspectiveCamera(
+//     45,
+//     window.innerWidth / window.innerHeight,
+//     1,
+//     2000
+//   );
+//   camera.position.z = 500;
+// }
+// function setUpScene(){
+//   scene = new THREE.Scene();
+//   scene.background = new THREE.Color(0x222222);
+//   scene.fog = new THREE.Fog(0x000000, 1, 15000);
+// }
+
+// function setUpLights(){
+//   var light = new THREE.PointLight(0xff2200);
+//   camera.add(light);
+//   scene.add(camera);
+
+//   light = new THREE.AmbientLight(0x111111);
+//   scene.add(light);
+// }
+// function onWindowResize() {
+//   camera.aspect = window.innerWidth / window.innerHeight;
+//   camera.updateProjectionMatrix();
+
+//   renderer.setSize(window.innerWidth, window.innerHeight);
+// }
+
+// function animate() {
+//   requestAnimationFrame(animate);
+
+//   var delta = clock.getDelta();
+
+//   mixer.update(delta);
+
+//   renderer.render(scene, camera);
+// }

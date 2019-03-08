@@ -1,9 +1,6 @@
 import * as THREE from "three";
 
 export default (scene, options) => {
-  //Set up the material and geometry before adding them to a mesh
-  //Then the mesh is added to a group which is added to a scene passed
-  //down from the sceneManager
 
   const material = new THREE.MeshPhongMaterial({
     color: 0x093145,
@@ -23,27 +20,21 @@ export default (scene, options) => {
   group.add(mesh);
   scene.add(group);
 
-  //Add a raycaster to look for interactions between the mouse
-  //and the mesh
+ 
   var raycaster = new THREE.Raycaster();
 
-  //Set the initial position and rotation of the mesh
+
   mesh.position.set(options.position.x, options.position.y, options.position.z);
   mesh.rotation.set(options.rotation.x, options.rotation.y, options.rotation.z);
 
-  //This bool is used when you want to deform back and forth between
-  //two mesh configurations. When you get to the second position, you flip the bool and
-  //run the previous deformation in reverse.
+
   var firstPartOfAnimation = false;
 
-  //lives in the update, wether you are aplly animations or not
   var animating;
-  //Timer, also in update, is used in animations that are not continuous
-  //(otherwise use time, which is passed by the scenemanager)
+
   var timer = 0;
 
-  //THese functions are used for animation, to increment to the current scale
-  //position or rotation
+
   function changePosition(x, y, z) {
     mesh.position.set(
       mesh.position.x + x,
@@ -61,10 +52,8 @@ export default (scene, options) => {
       mesh.rotation.z + z
     );
   }
-mesh.rotation.set(-1,0,0)
-  //This function is used to apply transformations to the mesh's vertices
-  //Ive left it able to got back and forth between the initial state and
-  // a deformed state.
+
+
   function deformGeometry(firstPartOfAnimation) {
     const quaternion = new THREE.Quaternion();
 
@@ -93,8 +82,7 @@ mesh.rotation.set(-1,0,0)
     }
   }
 
-  //a click even is passed, along with a camer to this click function
-  //where we use the raycaster to check for interactions
+
   function click(mouse, camera) {
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects([mesh]);
@@ -108,7 +96,7 @@ mesh.rotation.set(-1,0,0)
     if (animating) {
       if (timer < 5 && firstPartOfAnimation) {
          changeScale(0, 0, -timer / 12);
-        changePosition(0, 0, -timer / 24);
+        changePosition(0, 0, -timer / 40);
         timer++;
         //   deformGeometry(firstPartOfAnimation, timer);
       } else if (timer >= 5 && firstPartOfAnimation) {
@@ -117,14 +105,14 @@ mesh.rotation.set(-1,0,0)
         timer = 0;
       } else if (timer < 5 && !firstPartOfAnimation) {
         changeScale(0, 0, timer / 12);
-        changePosition(0, 0, timer / 24);
+        changePosition(0, 0, timer / 40);
 
         timer++;
         //  deformGeometry(firstPartOfAnimation, timer);
       } else if (timer >= 5 && !firstPartOfAnimation) {
         animating = false;
 
-        updateState("showButton", !state.showBall);
+        updateState(options.change, !state[options.change]);
         console.log("timer", timer);
       }
     } else {
@@ -138,3 +126,4 @@ mesh.rotation.set(-1,0,0)
     click
   };
 };
+
